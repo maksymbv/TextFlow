@@ -3,6 +3,26 @@ import { ref, defineExpose } from "vue";
 import CloseIcon from "@/assets/icons/settings/CloseIcon.vue";
 import LogoIcon from "@/assets/icons/settings/LogoIcon.vue";
 const isOpen = ref(false);
+const theme = ref(
+  document.documentElement.getAttribute("data-theme") === "light"
+    ? "light"
+    : "dark"
+);
+
+const THEME_KEY = "textflow-theme";
+
+const applyTheme = (value) => {
+  const normalized = value === "light" ? "light" : "dark";
+  theme.value = normalized;
+  document.documentElement.setAttribute("data-theme", normalized);
+  document.documentElement.style.backgroundColor =
+    normalized === "light" ? "#f5f5f7" : "#171717";
+  try {
+    localStorage.setItem(THEME_KEY, normalized);
+  } catch {
+    // ignore storage errors
+  }
+};
 
 const open = () => {
   document.body.style.overflow = "hidden";
@@ -11,6 +31,10 @@ const open = () => {
 const close = () => {
   isOpen.value = false;
   document.body.style.overflow = "auto";
+};
+
+const onThemeChange = (event) => {
+  applyTheme(event.target.value);
 };
 
 defineExpose({ open });
@@ -24,9 +48,15 @@ defineExpose({ open });
           <button @click="close" class="control-item"><CloseIcon /></button>
         </div>
         <div class="setting-item">
-          <span class="setting-item-name">Themes ( in the next versions )</span>
-          <select name="theme" id="theme-toggle" class="control-item">
-            <option value="dark">Dark theme ( Default )</option>
+          <span class="setting-item-name">Theme</span>
+          <select
+            name="theme"
+            id="theme-toggle"
+            class="control-item"
+            :value="theme"
+            @change="onThemeChange"
+          >
+            <option value="dark">Dark theme (Default)</option>
             <option value="light">Light theme</option>
           </select>
         </div>
@@ -34,11 +64,12 @@ defineExpose({ open });
         <div class="setting-item">
           <span class="setting-item-name">About</span>
           <p class="setting-item-text">
-            A lightweight note-taking app built with Vue.js. It stores your
-            notes locally using IndexedDB for quick access, and you can export
-            them as TXT files for backup or sharing.
+            TextFlow is a minimal note app for quick thoughts, tasks and ideas.
+            Notes are stored only in your browser using IndexedDB, so nothing is
+            sent to a server. You can export any note as a TXT file if you want
+            to back it up or share it.
           </p>
-          <a href="https://github.com/mxbv/Simpl-web" class="control-item">
+          <a href="https://github.com/mxbv/TextFlow-web" class="control-item">
             <LogoIcon /> <span>View source</span>
           </a>
         </div>

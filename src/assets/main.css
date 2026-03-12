@@ -4,6 +4,30 @@
   --item: #1b1b1b;
   --text: #f2f2f5;
   --accent: #32d74b;
+  --border-color: #242424;
+  --nav-shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 4px 8px rgba(0, 0, 0, 0.15);
+  --nav-accent-bg: #1a1a1a;
+  --icon-color: #b3b3b3;
+  --icon-color-strong: var(--icon-hover-color);
+  --icon-hover-color: #ffffff;
+  --note-border-color: rgba(255, 255, 255, 0.04);
+  --note-shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+:root[data-theme="light"] {
+  --bg: #f5f5f7;
+  --item-hover: #e4e4ea;
+  --item: #ffffff;
+  --text: #1c1c1e;
+  --accent: #007aff;
+  --border-color: #d0d0d7;
+  --nav-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 10px rgba(0, 0, 0, 0.06);
+  --nav-accent-bg: #f0f0f5;
+  --icon-color: #6b6b76;
+  --icon-color-strong: var(--accent);
+  --icon-hover-color: #111111;
+  --note-border-color: rgba(0, 0, 0, 0.06);
+  --note-shadow: 0 4px 10px rgba(15, 23, 42, 0.06);
 }
 * {
   scrollbar-width: thin;
@@ -58,10 +82,22 @@ body {
   color: var(--text);
   text-decoration: none;
 }
-.control-item:hover {
-  svg path {
-    stroke: #fff;
-  }
+.control-item:hover svg path {
+  stroke: var(--icon-hover-color);
+}
+
+.is-favorite {
+  color: var(--icon-color-strong);
+}
+
+.is-favorite svg path {
+  stroke: var(--icon-color-strong);
+  fill: var(--icon-color-strong);
+}
+
+.star-button svg path {
+  stroke: var(--icon-color);
+  fill: var(--icon-color);
 }
 .hint {
   display: flex;
@@ -78,6 +114,7 @@ body {
   font-size: 2rem;
 }
 svg path {
+  stroke: var(--icon-color);
   transition: 0.3s;
 }
 @keyframes fadeIn {

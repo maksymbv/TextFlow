@@ -8,7 +8,7 @@
   >
     <path
       d="M12 4V20M4 12H20"
-      stroke="#b3b3b3"
+      stroke="currentColor"
       stroke-width="1.6"
       stroke-linecap="round"
       stroke-linejoin="round"

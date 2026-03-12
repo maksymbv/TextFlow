@@ -43,7 +43,18 @@ export const getNotesFromDB = async () => {
   const store = tx.objectStore(STORE_NAME);
   const notes = await store.getAll();
 
-  return notes.sort((a, b) => b.createdAt - a.createdAt); // Sort by date of creation (new on top)
+  return notes.sort((a, b) => {
+    const aFav = Boolean(a.isFavorite);
+    const bFav = Boolean(b.isFavorite);
+
+    if (aFav !== bFav) {
+      // Favorites first
+      return aFav ? -1 : 1;
+    }
+
+    // Then by creation date (new on top)
+    return b.createdAt - a.createdAt;
+  });
 };
 
 export const deleteNoteFromDB = async (id) => {

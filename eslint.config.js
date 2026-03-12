@@ -8,6 +8,22 @@ export default [
   },
 
   {
+    languageOptions: {
+      globals: {
+        document: 'readonly',
+        window: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        localStorage: 'readonly',
+        console: 'readonly',
+        alert: 'readonly',
+        Blob: 'readonly',
+        URL: 'readonly',
+      },
+    },
+  },
+
+  {
     name: 'app/files-to-ignore',
     ignores: ['**/dist/**', '**/dist-ssr/**', '**/coverage/**'],
   },

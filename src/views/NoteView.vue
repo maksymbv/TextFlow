@@ -1,6 +1,6 @@
 <script setup>
 import { useRoute, useRouter } from "vue-router";
-import { ref, onMounted, onUnmounted, watch } from "vue";
+import { ref, onMounted, onUnmounted, watch, nextTick } from "vue";
 import { getNotesFromDB, deleteNoteFromDB, saveNoteToDB } from "@/utils/db";
 // Icons
 import BackIcon from "@/assets/icons/editor/BackIcon.vue";
@@ -14,12 +14,24 @@ const route = useRoute();
 const router = useRouter();
 const noteId = ref(parseInt(route.params.id));
 const note = ref(null);
+const isLoadingNote = ref(true);
 let autoSaveInterval = null;
+const titleTextarea = ref(null);
+const contentTextarea = ref(null);
 
 // Load the note when component is mounted or noteId changes
 const loadNote = async () => {
+  isLoadingNote.value = true;
   const notes = await getNotesFromDB();
   note.value = notes.find((n) => n.id === noteId.value) || null;
+  await nextTick();
+  if (titleTextarea.value) {
+    autoResizeTitle();
+  }
+   if (contentTextarea.value) {
+     autoResizeContent();
+   }
+  isLoadingNote.value = false;
 };
 
 onMounted(() => {
@@ -69,11 +81,41 @@ const deleteNote = async () => {
   }
 };
 
+const autoResizeTitle = () => {
+  if (!titleTextarea.value) return;
+  const el = titleTextarea.value;
+  el.style.height = "auto";
+  el.style.height = `${el.scrollHeight}px`;
+};
+
+const autoResizeContent = () => {
+  if (!contentTextarea.value) return;
+  const el = contentTextarea.value;
+  el.style.height = "auto";
+  el.style.height = `${el.scrollHeight}px`;
+};
+
+const getCreatedDateTime = (currentNote) => {
+  if (!currentNote) return "";
+  if (!currentNote.createdAt) return currentNote.date || "";
+  const date = new Date(currentNote.createdAt);
+  if (Number.isNaN(date.getTime())) return currentNote.date || "";
+  const time = date.toLocaleTimeString("ru-RU", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+  return `${time} ${day}.${month}.${year}`;
+};
+
 // Exporting the note
 const exportNote = () => {
   if (!note.value) return;
+  const headerDate = getCreatedDateTime(note.value);
   const content = `${(note.value.title || "Empty").toUpperCase()} | ${
-    note.value.date
+    headerDate || note.value.date || ""
   }\n\n${note.value.content || "Empty"}`;
   const blob = new Blob([content], { type: "text/plain; charset=utf-8" });
   const link = document.createElement("a");
@@ -95,10 +137,20 @@ const goBack = async () => {
   router.replace("/");
   emit("refreshNotes"); // Redirect to the home page
 };
+
+const toggleFavorite = async () => {
+  if (!note.value) return;
+  note.value.isFavorite = !note.value.isFavorite;
+  await saveNoteToDB(note.value);
+  emit("refreshNotes");
+};
 </script>
 
 <template>
-  <div v-if="note" class="note">
+  <div v-if="isLoadingNote" class="hint">
+    Loading...
+  </div>
+  <div v-else-if="note" class="note">
     <div class="note-container">
       <div class="note-header">
         <button
@@ -109,7 +161,12 @@ const goBack = async () => {
           <BackIcon />
         </button>
         <div class="note-header-right">
-          <button class="control-item star-button" title="Add to Favorite">
+          <button
+            class="control-item star-button"
+            :class="{ 'is-favorite': note.isFavorite }"
+            title="Add to Favorite"
+            @click="toggleFavorite"
+          >
             <StarIcon />
           </button>
           <button
@@ -129,20 +186,23 @@ const goBack = async () => {
           </button>
         </div>
       </div>
-      <input
+      <textarea
         v-model="note.title"
         placeholder="Title"
         class="note-input note-title"
         ref="titleTextarea"
-        type="text"
         maxlength="100"
-      />
+        rows="1"
+        @input="autoResizeTitle"
+      ></textarea>
       <textarea
         v-model="note.content"
         placeholder="Tell a new story..."
         class="note-input note-text"
         ref="contentTextarea"
         maxlength="30000"
+        rows="5"
+        @input="autoResizeContent"
       ></textarea>
     </div>
   </div>
@@ -155,15 +215,9 @@ const goBack = async () => {
 <style scoped>
 .note {
   display: flex;
-  position: absolute;
   width: 100%;
-  height: 100%;
   min-height: 100dvh;
-  top: 0;
-  left: 0;
   justify-content: center;
-  z-index: 1000;
-  overflow: hidden;
   color: var(--text);
   animation: fadeIn 0.3s ease;
 }
@@ -171,15 +225,15 @@ const goBack = async () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 50%;
+  width: 100%;
   height: fit-content;
   z-index: 100;
   margin: 0 auto;
   margin-top: 10px;
   background-color: var(--item);
-  border: solid 1px #242424;
+  border: solid 1px var(--border-color);
   border-radius: 13px;
-  box-shadow: 0px 2px #0c0c0c;
+  box-shadow: var(--note-shadow);
 }
 .note-header-right {
   display: flex;
@@ -192,18 +246,30 @@ const goBack = async () => {
   margin-right: 10px;
 }
 
+
+.star-button:not(.is-favorite) :deep(svg path) {
+  fill: transparent;
+  stroke: var(--icon-color);
+}
+
+.star-button:hover {
+  color: var(--icon-color-strong);
+}
+
+.star-button:hover :deep(svg path) {
+  stroke: var(--icon-color-strong);
+}
+
 .note-container {
   display: flex;
   flex-direction: column;
-  height: 100%;
   width: 100%;
-  overflow: hidden;
 }
 
 .note-input {
   width: 100%;
   border: none;
-  padding: 0 25%;
+  padding: 0 15px;
   outline: none;
   resize: none;
   background: none;
@@ -215,27 +281,28 @@ const goBack = async () => {
   display: block;
   font-size: 2rem;
   font-weight: 500;
-  text-overflow: ellipsis;
   border-bottom: none;
   padding-bottom: 0;
   margin-top: 20px;
   flex: none;
+  line-height: 1.2;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .note-text {
   box-sizing: border-box;
-  overflow: auto;
-  flex: 1;
   margin-bottom: 20px;
   margin-top: 20px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow: hidden;
 }
 .hint .button {
   margin-top: 20px;
 }
 @media screen and (max-width: 992px) {
-  .note-header {
-    width: 95%;
-  }
   .note-input {
     padding: 0 15px;
   }

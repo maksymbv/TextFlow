@@ -1,17 +1,17 @@
-# Simpl 
+# TextFlow 
 
-<img width="1544" alt="simpl" src="https://github.com/user-attachments/assets/1cd180b7-039d-4811-aecc-7ff24641a022" />
+<img width="1544" alt="TextFlow" src="https://github.com/user-attachments/assets/1cd180b7-039d-4811-aecc-7ff24641a022" />
 
-[You can see it live](https://mxbv.github.io/simpl)
+[You can see it live](https://mxbv.github.io/TextFlow)
 
 
 ## About
 
-Simpl is a lightweight and efficient note-taking application built with Vue.js. It leverages Vue Router for navigation and IndexedDB for persistent data storage, ensuring a seamless and reliable user experience.
+TextFlow is a minimal note app for quick thoughts, tasks and ideas. Notes are stored only in your browser using IndexedDB, so nothing is sent to a server. You can export any note as a TXT file if you want to back it up or share it.
 
 ## Features
 
-* Create, Edit, and Delete Notes: Easily manage your notes with a simple and intuitive interface.
+* Create, Edit, and Delete Notes: Easily manage your notes with a TextFlowe and intuitive interface.
 
 * Automatic Saving: All changes are saved instantly without the need for manual actions.
 
@@ -29,7 +29,7 @@ Simpl is a lightweight and efficient note-taking application built with Vue.js. 
 
 * IndexedDB: Provides local storage for offline access and data persistence.
 
-Simpl is designed to be fast, minimalistic, and user-friendly, making it an excellent choice for those who need a reliable note-taking solution without unnecessary complexity.
+TextFlow is designed to be fast, minimalistic, and user-friendly, making it an excellent choice for those who need a reliable note-taking solution without unnecessary complexity.
 
 
 

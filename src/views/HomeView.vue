@@ -13,14 +13,17 @@ import SettingsIcon from "@/assets/icons/nav/SettingsIcon.vue";
 
 const notes = ref([]);
 const filteredNotes = ref([]);
+const isLoadingNotes = ref(true);
 const searchQuery = ref("");
 const settingsModal = ref(null);
 const router = useRouter();
 
 // Load notes from IndexedDB
 onMounted(async () => {
+  isLoadingNotes.value = true;
   notes.value = await getNotesFromDB();
   filteredNotes.value = [...notes.value];
+  isLoadingNotes.value = false;
 });
 
 // Add a new note
@@ -37,6 +40,7 @@ const addNewNote = async () => {
     content: "",
     date: currentDate,
     createdAt: Date.now(),
+    isFavorite: false,
   };
 
   await saveNoteToDB(newNote);
@@ -46,7 +50,10 @@ const addNewNote = async () => {
 
 // Refresh notes (reload from DB)
 const refreshNotes = async () => {
+  isLoadingNotes.value = true;
   notes.value = await getNotesFromDB();
+  filteredNotes.value = [...notes.value];
+  isLoadingNotes.value = false;
 };
 
 // Search notes based on query
@@ -60,7 +67,16 @@ const searchNotes = (query) => {
           (note.title || "").toLowerCase().includes(query.toLowerCase()) ||
           (note.content || "").toLowerCase().includes(query.toLowerCase())
       )
-      .sort((a, b) => b.createdAt - a.createdAt);
+      .sort((a, b) => {
+        const aFav = Boolean(a.isFavorite);
+        const bFav = Boolean(b.isFavorite);
+
+        if (aFav !== bFav) {
+          return aFav ? -1 : 1;
+        }
+
+        return b.createdAt - a.createdAt;
+      });
   }
 };
 
@@ -104,7 +120,9 @@ const openSettings = () => {
     </div>
 
     <!-- Message when no notes -->
-    <div v-else class="hint">Click + to create a note</div>
+    <div v-else-if="!isLoadingNotes" class="hint">
+      Click + to create a note
+    </div>
 
     <!-- View for other routes (e.g. note view) -->
     <router-view @refreshNotes="refreshNotes" />
@@ -124,13 +142,13 @@ nav {
   left: 50%;
   transform: translateX(-50%);
   background-color: var(--item);
-  border: solid 1px #242424;
+  border: solid 1px var(--border-color);
   border-radius: 13px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 4px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--nav-shadow);
 }
 .note-add {
-  border-left: solid 1px #242424;
-  background-color: #1a1a1a;
+  border-left: solid 1px var(--border-color);
+  background-color: var(--nav-accent-bg);
 }
 .note-add:hover svg {
   transform: rotate(180deg);

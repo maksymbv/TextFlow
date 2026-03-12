@@ -4,12 +4,30 @@
     <meta charset="UTF-8" />
     <link rel="icon" href="./favicon.png" sizes="32x32" type="image/png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <style>
-      html {
-        background-color: #171717;
-      }
-    </style>
-    <title>Simpl - quick notes for your things</title>
+    <meta name="color-scheme" content="dark light" />
+    <script>
+      (function () {
+        const THEME_KEY = "textflow-theme";
+        let theme = "dark";
+        try {
+          const saved = localStorage.getItem(THEME_KEY);
+          if (saved === "light" || saved === "dark") {
+            theme = saved;
+          } else if (
+            window.matchMedia &&
+            window.matchMedia("(prefers-color-scheme: light)").matches
+          ) {
+            theme = "light";
+          }
+        } catch (e) {
+          // ignore storage errors
+        }
+        document.documentElement.setAttribute("data-theme", theme);
+        document.documentElement.style.backgroundColor =
+          theme === "light" ? "#f5f5f7" : "#171717";
+      })();
+    </script>
+    <title>TextFlow - quick notes for your things</title>
   </head>
   <body>
     <div id="app"></div>
