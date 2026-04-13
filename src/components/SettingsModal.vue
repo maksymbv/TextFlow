@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineExpose } from "vue";
+import { ref } from "vue";
 import CloseIcon from "@/assets/icons/settings/CloseIcon.vue";
 import LogoIcon from "@/assets/icons/settings/LogoIcon.vue";
 const isOpen = ref(false);
